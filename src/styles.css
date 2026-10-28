@@ -3,14 +3,14 @@
 :root{--bg:#0A101F;--bg2:#0F1830;--line:#1F2B47;--text:#E7ECF5;--mute:#97A3BC;--accent:#2DD4BF;--accent-ink:#04201C;--soft:#C3CCDD}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.65 "Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.65 "Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-x:clip}
 ::selection{background:var(--accent);color:var(--accent-ink)}
 ::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:#223155;border-radius:6px}
 a{color:inherit}
 a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
 .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
 main,footer{position:relative;z-index:1}
-section{padding-top:112px;scroll-margin-top:50px}
+section{padding-top:112px;scroll-margin-top:64px}
 
 /* ---------- background layers ---------- */
 .grid{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:34px 34px;-webkit-mask-image:radial-gradient(75% 60% at 50% 25%,#000,transparent);mask-image:radial-gradient(75% 60% at 50% 25%,#000,transparent)}
@@ -102,7 +102,7 @@ section{padding-top:112px;scroll-margin-top:50px}
 /* ---------- contact ---------- */
 .cbox{position:relative;border:1px solid var(--line);border-radius:24px;padding:clamp(30px,6vw,64px);background:radial-gradient(60% 90% at 100% 0,rgba(45,212,191,.16),transparent 60%),rgba(15,24,48,.8)}
 .cbox h2{margin:0 0 12px;font-size:clamp(2rem,4.6vw,3rem);font-weight:800;letter-spacing:-.035em}
-.mail{cursor:pointer;background:none;border:0;padding:0;text-align:left;font-family:inherit;display:inline-block;margin-top:8px;font-weight:800;font-size:clamp(1.5rem,5vw,3.2rem);letter-spacing:-.035em;color:#fff;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:3px;text-underline-offset:8px;word-break:break-all;transition:text-underline-offset .3s,color .3s}
+.mail{cursor:pointer;background:none;border:0;padding:0;text-align:left;font-family:inherit;display:inline-block;margin-top:8px;font-weight:800;font-size:clamp(1rem,4.9vw,3.2rem);letter-spacing:-.035em;color:#fff;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:3px;text-underline-offset:8px;white-space:nowrap;max-width:100%;transition:text-underline-offset .3s,color .3s}
 .mail:hover{text-underline-offset:14px;color:var(--accent)}
 .crow{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
 footer{padding:50px 0 44px;color:#6F7C97;font-size:.9rem;text-align:center}
@@ -125,7 +125,7 @@ footer{padding:50px 0 44px;color:#6F7C97;font-size:.9rem;text-align:center}
 .backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(55% 45% at 10% 0%,rgba(45,212,191,.12),transparent 70%),radial-gradient(50% 45% at 100% 6%,rgba(43,79,216,.2),transparent 70%)}
 
 /* ---------- hero: text left, photo standing on the page ---------- */
-.hero{position:relative;min-height:100vh;display:flex;align-items:center;padding-top:110px}
+.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;padding-top:110px}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;align-items:end;width:100%}
 .hero-text{align-self:center;padding-bottom:90px}
 .hero h1{margin:0 0 18px;font-weight:800;letter-spacing:-.045em;line-height:1}
@@ -168,3 +168,34 @@ footer{padding:50px 0 44px;color:#6F7C97;font-size:.9rem;text-align:center}
   .b2 .tiles{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:600px){.tiles,.b0 .tiles,.b1 .tiles,.b2 .tiles{grid-template-columns:1fr}.bcard{padding:20px}}
+
+/* ---------- phone fixes ---------- */
+@media (max-width:900px){
+  section{padding-top:76px}
+  .proj{padding:46px 0}
+  .burger{display:grid;place-items:center;width:44px;height:44px}
+  .drawer a{padding:17px 24px}
+  .social{flex-wrap:wrap}
+  .where{flex-basis:100%;margin:6px 0 0}
+  .tl{padding-left:40px}.dot{left:-39px}
+  .cbox{border-radius:20px}
+}
+@media (max-width:700px){
+  /* the email menu becomes a bottom sheet so it can never run off the screen */
+  .mailpop{position:fixed;left:16px;right:16px;bottom:16px;top:auto;width:auto;max-width:none;transform-origin:bottom center}
+}
+@media (max-width:520px){
+  .cta,.crow{flex-direction:column;align-items:stretch}
+  .cta .mag,.cta .btn,.crow .mag,.crow .mailwrap,.crow .btn,.crow .mailwrap>.btn{display:flex;width:100%}
+  .phead{flex-direction:column;align-items:flex-start}
+  .plinks{width:100%}.plinks a{flex:1;justify-content:center}
+  .status{font-size:.88rem}
+  .fbar span{margin-left:8px;padding:3px 10px;font-size:.74rem}
+}
+
+/* email address always stays on ONE line: its size follows the width of the contact box */
+@supports (font-size:1cqw){
+  .cbox{container-type:inline-size}
+  .mail{font-size:min(3.2rem,6.8cqw)}
+}
+@media (max-width:520px){.cbox{padding:30px 22px}}

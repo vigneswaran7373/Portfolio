@@ -9,6 +9,16 @@ import { links, phrases, projects, skills, timeline } from './data.js';
 const EASE = [0.2, 0.7, 0.2, 1];
 const rise = { hidden: { opacity: 0, y: 34 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } } };
 const stagger = (gap = 0.1, delay = 0) => ({ hidden: {}, show: { transition: { staggerChildren: gap, delayChildren: delay } } });
+const fine = () => typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+// Smooth, reliable jump to a section (works the same on phones, where plain #links can misbehave)
+const jump = (e, id) => {
+  e.preventDefault();
+  const el = document.getElementById(id);
+  if (!el) return;
+  const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+  window.history.replaceState(null, '', `#${id}`);
+};
 const inView = { initial: 'hidden', whileInView: 'show', viewport: { once: true, margin: '-70px' } };
 
 /* ---------- small building blocks ---------- */
@@ -16,7 +26,7 @@ function Magnetic({ children }) {
   const ref = useRef(null);
   const x = useMotionValue(0), y = useMotionValue(0);
   const sx = useSpring(x, { stiffness: 220, damping: 16 }), sy = useSpring(y, { stiffness: 220, damping: 16 });
-  const move = (e) => { const r = ref.current.getBoundingClientRect(); x.set((e.clientX - r.left - r.width / 2) * 0.25); y.set((e.clientY - r.top - r.height / 2) * 0.35); };
+  const move = (e) => { if (!fine()) return; const r = ref.current.getBoundingClientRect(); x.set((e.clientX - r.left - r.width / 2) * 0.25); y.set((e.clientY - r.top - r.height / 2) * 0.35); };
   return <motion.span ref={ref} className="mag" style={{ x: sx, y: sy }} onMouseMove={move} onMouseLeave={() => { x.set(0); y.set(0); }}>{children}</motion.span>;
 }
 
@@ -26,6 +36,7 @@ function Tilt({ children, className }) {
   const rx = useSpring(useTransform(y, [0, 1], [5, -5]), { stiffness: 140, damping: 18 });
   const ry = useSpring(useTransform(x, [0, 1], [-7, 7]), { stiffness: 140, damping: 18 });
   const move = (e) => {
+    if (!fine()) return;
     const r = ref.current.getBoundingClientRect();
     x.set((e.clientX - r.left) / r.width); y.set((e.clientY - r.top) / r.height);
     ref.current.style.setProperty('--mx', `${e.clientX - r.left}px`); ref.current.style.setProperty('--my', `${e.clientY - r.top}px`);
@@ -76,10 +87,10 @@ function Nav() {
   return (
     <header className={`nav ${stuck ? 'stuck' : ''}`}>
       <div className="wrap bar">
-        <a className="logo" href="#top" aria-label="Back to top"><span className="mono">V</span><b>Vigneswaran V</b></a>
+        <a className="logo" href="#top" aria-label="Back to top" onClick={(e) => jump(e, 'top')}><span className="mono">V</span><b>Vigneswaran V</b></a>
         <nav className="links" aria-label="Main">
           {sections.map(([id, label]) => (
-            <a key={id} href={`#${id}`} className={active === id ? 'on' : ''}>
+            <a key={id} href={`#${id}`} className={active === id ? 'on' : ''} onClick={(e) => jump(e, id)}>
               {active === id && <motion.span layoutId="pill" className="pill" transition={{ type: 'spring', stiffness: 380, damping: 32 }} />}
               <span>{label}</span>
             </a>
@@ -91,7 +102,7 @@ function Nav() {
       <AnimatePresence>
         {open && (
           <motion.div className="drawer" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: EASE }}>
-            {sections.map(([id, label]) => <a key={id} href={`#${id}`} onClick={() => setOpen(false)}>{label}</a>)}
+            {sections.map(([id, label]) => <a key={id} href={`#${id}`} onClick={(e) => { setOpen(false); jump(e, id); }}>{label}</a>)}
             <a href={links.resume} download>Download resume</a>
           </motion.div>
         )}
@@ -141,10 +152,10 @@ function Hero() {
           <motion.p variants={rise} className="status"><i /> Open to entry-level software developer roles</motion.p>
           <motion.h1 variants={rise}><span className="hi">Hi, I'm</span><span className="nm">Vigneswaran V</span></motion.h1>
           <motion.p variants={rise} className="typed">I build <Typewriter /></motion.p>
-          <motion.p variants={rise} className="intro">Final-year Computer Science student from Salem, working with MongoDB, Express, React, Node.js and Java. I like apps that solve a clear problem for real people, and I deploy everything I build.</motion.p>
+          <motion.p variants={rise} className="intro">Final-year Computer Science and Engineering student from Salem, working with MongoDB, Express, React, Node.js and Java. I like apps that solve a clear problem for real people, and I deploy everything I build.</motion.p>
           <motion.div variants={rise} className="cta">
             <Magnetic><a className="btn primary" href={links.resume} download><Download size={18} /> Download resume</a></Magnetic>
-            <Magnetic><a className="btn ghost" href="#projects">View projects <ArrowUpRight size={18} /></a></Magnetic>
+            <Magnetic><a className="btn ghost" href="#projects" onClick={(e) => jump(e, 'projects')}>View projects <ArrowUpRight size={18} /></a></Magnetic>
           </motion.div>
           <motion.div variants={rise} className="social">
             <a href={links.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Github size={20} /></a>
@@ -158,7 +169,7 @@ function Hero() {
           <img src="/assets/vigneswaran.webp" width="900" height="1006" alt="Portrait of Vigneswaran V in a black suit and tie" fetchpriority="high" />
         </motion.div>
       </div>
-      <a className="cue" href="#projects" aria-label="Scroll to projects"><i /></a>
+      <a className="cue" href="#projects" aria-label="Scroll to projects" onClick={(e) => jump(e, 'projects')}><i /></a>
     </section>
   );
 }
