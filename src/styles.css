@@ -2,7 +2,7 @@
    Other accents that work: #5B8CFF (blue), #F5B84B (amber), #34D399 (green) */
 :root{--bg:#0A101F;--bg2:#0F1830;--line:#1F2B47;--text:#E7ECF5;--mute:#97A3BC;--accent:#2DD4BF;--accent-ink:#04201C;--soft:#C3CCDD}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:auto}
 body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.65 "Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-x:clip}
 ::selection{background:var(--accent);color:var(--accent-ink)}
 ::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:#223155;border-radius:6px}
@@ -199,3 +199,6 @@ footer{padding:50px 0 44px;color:#6F7C97;font-size:.9rem;text-align:center}
   .mail{font-size:min(3.2rem,6.8cqw)}
 }
 @media (max-width:520px){.cbox{padding:30px 22px}}
+
+/* phones: tap targets respond instantly */
+.burger,.drawer a,.links a,.logo,.cue{touch-action:manipulation;-webkit-tap-highlight-color:transparent}

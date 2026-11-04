@@ -10,14 +10,31 @@ const EASE = [0.2, 0.7, 0.2, 1];
 const rise = { hidden: { opacity: 0, y: 34 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } } };
 const stagger = (gap = 0.1, delay = 0) => ({ hidden: {}, show: { transition: { staggerChildren: gap, delayChildren: delay } } });
 const fine = () => typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-// Smooth, reliable jump to a section (works the same on phones, where plain #links can misbehave)
+// Reliable jump to a section. Uses our own scroll animation instead of the browser's smooth scrolling,
+// because phones differ in how they handle scrollIntoView / CSS smooth scroll (this is what made the burger menu tabs fail).
+const HEADER_OFFSET = 64;
+let scrollAnim = 0;
 const jump = (e, id) => {
   e.preventDefault();
   const el = document.getElementById(id);
   if (!el) return;
+  cancelAnimationFrame(scrollAnim);
+  const y0 = window.scrollY || window.pageYOffset || 0;
+  const target = () => (id === 'top' ? 0 : Math.max(0, el.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0) - HEADER_OFFSET + 1));
+  const finish = () => window.history.replaceState(null, '', id === 'top' ? window.location.pathname : `#${id}`);
   const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
-  window.history.replaceState(null, '', `#${id}`);
+  if (calm || Math.abs(target() - y0) < 2) { window.scrollTo(0, target()); finish(); return; }
+  const dur = Math.min(900, 350 + Math.abs(target() - y0) * 0.25);
+  const t0 = performance.now();
+  const stop = () => cancelAnimationFrame(scrollAnim);               // the user grabbed the page: let them scroll
+  window.addEventListener('touchstart', stop, { once: true, passive: true });
+  window.addEventListener('wheel', stop, { once: true, passive: true });
+  const step = (now) => {
+    const t = Math.min(1, (now - t0) / dur);
+    window.scrollTo(0, y0 + (target() - y0) * (1 - Math.pow(1 - t, 3)));
+    if (t < 1) scrollAnim = requestAnimationFrame(step); else finish();
+  };
+  scrollAnim = requestAnimationFrame(step);
 };
 const inView = { initial: 'hidden', whileInView: 'show', viewport: { once: true, margin: '-70px' } };
 
@@ -152,7 +169,7 @@ function Hero() {
           <motion.p variants={rise} className="status"><i /> Open to entry-level software developer roles</motion.p>
           <motion.h1 variants={rise}><span className="hi">Hi, I'm</span><span className="nm">Vigneswaran V</span></motion.h1>
           <motion.p variants={rise} className="typed">I build <Typewriter /></motion.p>
-          <motion.p variants={rise} className="intro">Final-year Computer Science and Engineering student from Salem, working with MongoDB, Express, React, Node.js and Java. I like apps that solve a clear problem for real people, and I deploy everything I build.</motion.p>
+          <motion.p variants={rise} className="intro">Final-year Computer Science And Engineering student from Salem, working with MongoDB, Express, React, Node.js and Java. I like apps that solve a clear problem for real people, and I deploy everything I build.</motion.p>
           <motion.div variants={rise} className="cta">
             <Magnetic><a className="btn primary" href={links.resume} download><Download size={18} /> Download resume</a></Magnetic>
             <Magnetic><a className="btn ghost" href="#projects" onClick={(e) => jump(e, 'projects')}>View projects <ArrowUpRight size={18} /></a></Magnetic>
